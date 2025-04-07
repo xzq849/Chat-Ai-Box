@@ -12,30 +12,48 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+          cache: 'gradle'
       
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0'
+          flutter-version: '3.7.0'
           channel: 'stable'
-          
+          cache: true
+      
+      - name: Check Flutter version
+        run: flutter --version
+      
       - name: Install dependencies
         run: flutter pub get
-        
+      
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+      
       - name: Build APK
         run: flutter build apk --release
-        
+      
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          
+          retention-days: 7
+      
       - name: Build AAB
         run: flutter build appbundle --release
-        
+      
       - name: Upload AAB
         uses: actions/upload-artifact@v3
         with:
           name: app-release.aab
           path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 7
