@@ -101,6 +101,7 @@ class XunfeiSparkApi extends BaseApi {
       }
     };
     
+    final responseData;
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -108,11 +109,11 @@ class XunfeiSparkApi extends BaseApi {
         body: json.encode(requestBody),
       );
       
-      final responseData = handleResponse(response);
+      responseData = handleResponse(response);
+      final content = responseData['payload']['text'][0]['content'];
     } catch (e) {
       throw Exception('请求讯飞星火API失败: ${e.toString()}');
     }
-    final content = responseData['payload']['text'][0]['content'];
     
     // 创建AI回复消息
     return Message.text(
