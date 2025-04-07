@@ -103,17 +103,11 @@ class XunfeiSparkApi extends BaseApi {
     
     final response = await http.post(
       Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: createHeaders(),
       body: json.encode(requestBody),
     );
     
-    if (response.statusCode != 200) {
-      throw Exception('API请求失败: ${response.statusCode}, ${response.body}');
-    }
-    
-    final responseData = jsonDecode(response.body);
+    final responseData = handleResponse(response);
     final content = responseData['payload']['text'][0]['content'];
     
     // 创建AI回复消息
@@ -131,8 +125,9 @@ class XunfeiSparkApi extends BaseApi {
   @override
   Future<bool> validateApiKey() async {
     try {
-      _generateAuthUrl();
-      return true;
+      final testUrl = _generateAuthUrl();
+      final response = await http.get(Uri.parse(testUrl));
+      return response.statusCode == 200;
     } catch (e) {
       return false;
     }
@@ -141,6 +136,16 @@ class XunfeiSparkApi extends BaseApi {
   @override
   Map<String, dynamic> getConfigOptions() {
     return {
+      'model': {
+        'type': 'select',
+        'label': '模型版本',
+        'options': [
+          {'label': 'Spark Lite', 'value': 'v1.5'},
+          {'label': 'Spark Pro', 'value': 'v2.0'},
+          {'label': 'Spark Ultra', 'value': 'v3.0'},
+        ],
+        'default': 'v2.0',
+      },
       'app_id': {
         'type': 'text',
         'label': 'App ID',
@@ -158,6 +163,13 @@ class XunfeiSparkApi extends BaseApi {
         'max': 1.0,
         'step': 0.1,
         'default': 0.5,
+      },
+      'max_tokens': {
+        'type': 'number',
+        'label': '最大Token数',
+        'min': 100,
+        'max': 4000,
+        'default': 2000,
       },
     };
   }
