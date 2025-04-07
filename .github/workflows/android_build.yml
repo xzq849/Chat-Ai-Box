@@ -16,6 +16,9 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
