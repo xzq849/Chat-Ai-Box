@@ -101,13 +101,17 @@ class XunfeiSparkApi extends BaseApi {
       }
     };
     
-    final response = await http.post(
-      Uri.parse(url),
-      headers: createHeaders(),
-      body: json.encode(requestBody),
-    );
-    
-    final responseData = handleResponse(response);
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: createHeaders(),
+        body: json.encode(requestBody),
+      );
+      
+      final responseData = handleResponse(response);
+    } catch (e) {
+      throw Exception('请求讯飞星火API失败: ${e.toString()}');
+    }
     final content = responseData['payload']['text'][0]['content'];
     
     // 创建AI回复消息
@@ -129,7 +133,7 @@ class XunfeiSparkApi extends BaseApi {
       final response = await http.get(Uri.parse(testUrl));
       return response.statusCode == 200;
     } catch (e) {
-      return false;
+      throw Exception('验证讯飞星火API密钥失败: ${e.toString()}');
     }
   }
   
